@@ -843,3 +843,181 @@ model-viewer {
         width: 100%;
     }
 }
+
+/* Admin Tag Management Styles */
+.admin-tag-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+}
+
+.admin-tag-section h4 {
+    color: #495057;
+    margin-bottom: 15px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-tag-section h4::before {
+    content: "🔧";
+    font-size: 14px;
+}
+
+.permission-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+    font-size: 14px;
+    cursor: pointer;
+    color: #495057;
+}
+
+.permission-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #667eea;
+    cursor: pointer;
+}
+
+.tag-permissions-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #dee2e6;
+}
+
+.tag-permissions-section h5 {
+    color: #495057;
+    margin-bottom: 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tag-permission-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.tag-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tag-preview {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 80px;
+    text-align: center;
+}
+
+.permission-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.permission-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #495057;
+    cursor: pointer;
+}
+
+.permission-toggle input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #28a745;
+}
+
+.delete-tag-btn {
+    background: #dc3545;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s ease;
+}
+
+.delete-tag-btn:hover {
+    background: #c82333;
+}
+
+/* Permission indicators in existing tags */
+.existing-tag span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.no-tags-available {
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px dashed #dee2e6;
+}
+
+/* Enhanced create tag form for admin */
+.admin-tag-section .create-tag-form {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.admin-tag-section .create-tag-form input[type="text"] {
+    margin-bottom: 10px;
+}
+
+.admin-tag-section .create-tag-form button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.admin-tag-section .create-tag-form button:hover {
+    background: #5a6fd8;
+}
+
+/* Mobile responsiveness for admin features */
+@media (max-width: 768px) {
+    .tag-permission-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .permission-controls {
+        justify-content: space-between;
+    }
+    
+    .admin-tag-section .create-tag-form {
+        padding: 12px;
+    }
+}

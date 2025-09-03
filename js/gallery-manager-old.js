@@ -1,6 +1,6 @@
 /**
  * Gallery Manager Module
- * Handles screenshot gallery and comment management with cloud storage and admin tag permissions
+ * Handles screenshot gallery and comment management with cloud storage
  */
 
 class GalleryManager {
@@ -10,7 +10,7 @@ class GalleryManager {
         this.cloudStorage = new CloudStorageManager();
         this.visibleRows = 2; // Show only 2 rows initially
         this.screenshotsPerRow = 4; // Assuming 4 screenshots per row
-        this.availableTags = []; // Store available tags with colors and permissions
+        this.availableTags = []; // Store available tags with colors
         this.loadTagsFromStorage(); // Load existing tags
     }
 
@@ -310,7 +310,7 @@ class GalleryManager {
         }
     }
 
-    // Tag Management Methods with Admin Permissions
+    // Tag Management Methods
     loadTagsFromStorage() {
         try {
             const storedTags = localStorage.getItem('screenshot-tags');
@@ -320,9 +320,6 @@ class GalleryManager {
                 this.availableTags.forEach(tag => {
                     if (!tag.hasOwnProperty('clientCanUse')) {
                         tag.clientCanUse = (tag.name === 'Client approval' || tag.name === 'Needs Review');
-                    }
-                    if (!tag.hasOwnProperty('adminOnly')) {
-                        tag.adminOnly = !tag.clientCanUse;
                     }
                 });
             } else {
@@ -355,6 +352,7 @@ class GalleryManager {
         if (!screenshot) return;
 
         const isAdmin = this.currentUser && this.currentUser.role === 'admin';
+        const userCanManageTags = isAdmin;
 
         // Create modal for tag selection/creation
         const modal = document.createElement('div');
@@ -450,91 +448,20 @@ class GalleryManager {
             grid.appendChild(tagElement);
         });
     }
-
-    populateTagPermissions() {
-        const container = document.getElementById('tagPermissionsList');
-        if (!container) return;
-
-        container.innerHTML = '';
-        this.availableTags.forEach(tag => {
-            const permissionElement = document.createElement('div');
-            permissionElement.className = 'tag-permission-item';
-            permissionElement.innerHTML = `
-                <div class="tag-info">
-                    <span class="tag-preview" style="background-color: ${tag.color}; color: ${this.getContrastColor(tag.color)}">${tag.name}</span>
-                </div>
-                <div class="permission-controls">
-                    <label class="permission-toggle">
-                        <input type="checkbox" ${tag.clientCanUse ? 'checked' : ''} 
-                               onchange="galleryManager.updateTagPermission(${tag.id}, this.checked)">
-                        Client can use
-                    </label>
-                    <button class="delete-tag-btn" onclick="galleryManager.deleteTag(${tag.id})" title="Delete tag">🗑️</button>
-                </div>
-            `;
-            container.appendChild(permissionElement);
-        });
-    }
-
-    updateTagPermission(tagId, canUse) {
-        const tag = this.availableTags.find(t => t.id === tagId);
-        if (tag) {
-            tag.clientCanUse = canUse;
-            tag.adminOnly = !canUse;
-            this.saveTagsToStorage();
-            
-            // Refresh the tag modal if it's open
-            const existingGrid = document.getElementById('existingTagsGrid');
-            if (existingGrid) {
-                const screenshotId = parseInt(existingGrid.closest('.tag-modal').querySelector('[onclick*="toggleTag"]').getAttribute('onclick').match(/\d+/)[0]);
-                this.populateExistingTags(screenshotId);
-            }
-        }
-    }
-
-    deleteTag(tagId) {
-        if (confirm('Are you sure you want to delete this tag? It will be removed from all screenshots.')) {
-            // Remove from available tags
-            this.availableTags = this.availableTags.filter(t => t.id !== tagId);
-            this.saveTagsToStorage();
-            
-            // Remove from all screenshots
-            this.screenshots.forEach(screenshot => {
-                if (screenshot.tags) {
-                    screenshot.tags = screenshot.tags.filter(t => t.id !== tagId);
-                    this.updateScreenshotTags(screenshot.id);
-                }
             });
-            
-            // Refresh the permissions list
-            this.populateTagPermissions();
-            
-            // Refresh existing tags if modal is open
-            const existingGrid = document.getElementById('existingTagsGrid');
-            if (existingGrid) {
-                const screenshotId = parseInt(existingGrid.closest('.tag-modal').querySelector('[onclick*="toggleTag"]').getAttribute('onclick').match(/\d+/)[0]);
-                this.populateExistingTags(screenshotId);
-            }
-        }
+    }
+
+    toggleTag(screenshotId, tagId) {
     }
 
     toggleTag(screenshotId, tagId) {
         const screenshot = this.screenshots.find(s => s.id === screenshotId);
         if (!screenshot) return;
 
-        const tag = this.availableTags.find(t => t.id === tagId);
-        if (!tag) return;
-
-        // Check permissions for non-admin users
-        const isAdmin = this.currentUser && this.currentUser.role === 'admin';
-        if (!isAdmin && !tag.clientCanUse) {
-            alert('You do not have permission to use this tag.');
-            return;
-        }
-
         if (!screenshot.tags) screenshot.tags = [];
 
         const tagIndex = screenshot.tags.findIndex(t => t.id === tagId);
+        const tag = this.availableTags.find(t => t.id === tagId);
 
         if (tagIndex >= 0) {
             // Remove tag
@@ -551,19 +478,11 @@ class GalleryManager {
     }
 
     createAndApplyTag(screenshotId) {
-        const isAdmin = this.currentUser && this.currentUser.role === 'admin';
-        if (!isAdmin) {
-            alert('Only administrators can create new tags.');
-            return;
-        }
-
         const nameInput = document.getElementById('newTagName');
         const colorInput = document.getElementById('newTagColor');
-        const clientCanUseInput = document.getElementById('clientCanUseTag');
         
         const name = nameInput.value.trim();
         const color = colorInput.value;
-        const clientCanUse = clientCanUseInput.checked;
 
         if (!name) {
             alert('Please enter a tag name');
@@ -580,9 +499,7 @@ class GalleryManager {
         const newTag = {
             id: Date.now(),
             name: name,
-            color: color,
-            clientCanUse: clientCanUse,
-            adminOnly: !clientCanUse
+            color: color
         };
 
         this.availableTags.push(newTag);
@@ -598,13 +515,11 @@ class GalleryManager {
         // Clear form
         nameInput.value = '';
         colorInput.value = '#667eea';
-        clientCanUseInput.checked = false;
 
         // Update display
         this.populateExistingTags(screenshotId);
         this.displayCurrentTags(screenshotId);
         this.updateScreenshotTags(screenshotId);
-        this.populateTagPermissions();
     }
 
     displayCurrentTags(screenshotId) {
