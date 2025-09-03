@@ -608,16 +608,6 @@
                 ✅ Auto-deployment enabled - Latest version with enhanced features
             </div>
             
-            <!-- Quick Login Options for The Thoughtful Father -->
-            <div class="quick-login" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                <h4 style="margin-bottom: 15px; color: #333;">Quick Access - The Thoughtful Father:</h4>
-                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                    <a href="?client=the-thoughtful-father&user=admin" class="login-link admin" style="background: #667eea; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 14px;">Admin Access</a>
-                    <a href="?client=the-thoughtful-father&user=ThoughtfulFatherClient" class="login-link client" style="background: #28a745; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 14px;">Client View</a>
-                    <a href="?client=the-thoughtful-father&user=Designer" class="login-link designer" style="background: #17a2b8; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 14px;">Designer View</a>
-                </div>
-            </div>
-            
             <div class="client-grid">
                 <div class="client-card" onclick="selectClient('the-thoughtful-father', 'The Thoughtful Father')">
                     <h3>The Thoughtful Father</h3>
@@ -716,6 +706,7 @@
             'the-thoughtful-father': {
                 name: 'The Thoughtful Father',
                 password: 'LotuS',
+                adminPassword: 'testing123',
                 modelsPath: 'public/models/the-thoughtful-father/'
             },
             'the-favorite-neighbors': {
@@ -824,14 +815,26 @@
             const clientConfig = CLIENTS[currentClient];
             let isValidPassword = false;
             let userPassword = input.value;
+            let isAdmin = false;
             
             // Check if this is feature testing that accepts all passwords
             if (clientConfig.acceptAllPasswords) {
                 // Check against all valid passwords
                 const validPasswords = ['testing123', 'LotuS', 'DeckinRear'];
                 isValidPassword = validPasswords.includes(userPassword);
+                isAdmin = (userPassword === 'testing123');
             } else {
-                isValidPassword = (userPassword === clientConfig.password);
+                // Check for regular client password
+                if (userPassword === clientConfig.password) {
+                    isValidPassword = true;
+                    isAdmin = false;
+                }
+                // Check for admin password
+                else if (clientConfig.adminPassword && userPassword === clientConfig.adminPassword) {
+                    isValidPassword = true;
+                    isAdmin = true;
+                    currentUser = 'admin';
+                }
             }
             
             if (isValidPassword) {
@@ -847,7 +850,10 @@
                 
                 document.getElementById('passwordContainer').style.display = 'none';
                 document.getElementById('viewerContainer').style.display = 'block';
-                document.getElementById('clientInfo').textContent = `Welcome, ${clientConfig.name}`;
+                
+                // Update client info with admin indicator
+                const adminBadge = isAdmin ? '<span class="user-type">(ADMIN)</span>' : '';
+                document.getElementById('clientInfo').innerHTML = `Welcome, ${clientConfig.name} ${adminBadge}`;
                 
                 // Auto-load the current-design.glb model
                 autoLoadCurrentDesign(clientConfig);
