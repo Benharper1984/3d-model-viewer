@@ -196,6 +196,40 @@ model-viewer {
     z-index: 101;
 }
 
+/* Controls Hint Styles */
+.controls-hint {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    pointer-events: none;
+}
+
+.controls-hint-content {
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Hide controls hint on mobile to avoid clutter */
+@media (max-width: 768px) {
+    .controls-hint {
+        display: none;
+    }
+}
+
 .controls {
     padding: 20px;
     background: #f8f9fa;

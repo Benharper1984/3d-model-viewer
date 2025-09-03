@@ -117,7 +117,20 @@ The application includes several Vercel serverless functions:
 - `GET /api/list-screenshots` - Alternative listing endpoint  
 - `DELETE /api/delete-screenshot` - Alternative deletion endpoint
 
-## Keyboard Shortcuts
+## 3D Model Controls
+
+### Mouse/Trackpad Controls
+- **Rotate**: Left-click and drag (or single finger drag on mobile)
+- **Zoom**: Mouse wheel scroll (or pinch gesture on mobile)
+- **Pan**: Right-click and drag (or two-finger drag on mobile)
+- **Focus**: Double-click to focus on a point
+
+### Touch Controls (Mobile/Tablet)
+- **Rotate**: Single finger drag
+- **Zoom**: Pinch to zoom in/out
+- **Pan**: Two finger drag to move the model around
+
+### Keyboard Shortcuts
 
 When the viewer is active:
 - `R` - Reset camera position
