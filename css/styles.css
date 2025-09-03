@@ -585,3 +585,261 @@ model-viewer {
         flex-direction: column;
     }
 }
+
+/* Tag System Styles */
+.add-tag-btn {
+    background: #6f42c1;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-tag-btn:hover {
+    background: #5a2d91;
+}
+
+.screenshot-tags {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.tag-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Tag Modal Styles */
+.tag-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.tag-modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.tag-modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tag-modal-header h3 {
+    color: #333;
+    margin: 0;
+}
+
+.close-tag-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-tag-modal:hover {
+    color: #333;
+}
+
+.tag-modal-body {
+    padding: 20px;
+}
+
+.tag-modal-body h4 {
+    color: #333;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.existing-tags-section,
+.create-tag-section,
+.current-tags-section {
+    margin-bottom: 25px;
+}
+
+.existing-tags-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+}
+
+.existing-tag {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.existing-tag:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.existing-tag.applied {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.existing-tag button {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: inherit;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+}
+
+.existing-tag button:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.create-tag-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.create-tag-form input[type="text"] {
+    flex: 1;
+    min-width: 120px;
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.create-tag-form input[type="text"]:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.create-tag-form input[type="color"] {
+    width: 40px;
+    height: 38px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    background: none;
+}
+
+.create-tag-form button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.create-tag-form button:hover {
+    background: #5a6fd8;
+}
+
+.current-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.current-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    gap: 6px;
+}
+
+.current-tag button {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: inherit;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.current-tag button:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.no-tags {
+    color: #666;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* Mobile responsiveness for tags */
+@media (max-width: 768px) {
+    .tag-modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .existing-tags-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .create-tag-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .create-tag-form input[type="color"] {
+        width: 100%;
+    }
+}
