@@ -13,7 +13,7 @@ class App {
     }
 
     initialize() {
-        // Initialize model viewer
+        // Initialize model viewer (but don't auto-load if model is already set)
         const modelViewer = this.modelViewerController.initialize();
         
         // Detect user and set permissions
@@ -27,7 +27,8 @@ class App {
             currentUser
         );
         
-        // Load stored data
+        // Load stored data (use global client context if available)
+        const clientContext = window.currentClient || 'default';
         this.galleryManager.loadStoredScreenshots();
         
         // Setup event listeners

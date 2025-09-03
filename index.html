@@ -746,6 +746,7 @@
         function handleQuickLogin(clientId, userType) {
             if (CLIENTS[clientId]) {
                 currentClient = clientId;
+                window.currentClient = clientId; // Make available globally for modules
                 currentUser = userType;
                 
                 // Set user context in user manager if available
@@ -783,6 +784,7 @@
         // Client selection
         function selectClient(clientId, clientName) {
             currentClient = clientId;
+            window.currentClient = clientId; // Make available globally for modules
             document.getElementById('selectedClientName').textContent = clientName;
             document.getElementById('clientSelection').style.display = 'none';
             document.getElementById('passwordContainer').style.display = 'block';
@@ -1036,6 +1038,9 @@
     <script src="js/app.js"></script>
     
     <script>
+        // Global app instance
+        let app;
+        
         // Enhanced screenshot functionality
         function startScreenshot() {
             if (window.app && window.app.screenshotCore) {
@@ -1058,19 +1063,22 @@
         }
 
         // Initialize enhanced features when app loads
-        let app; // Global app instance
-        
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize the enhanced application features
-            setTimeout(() => {
+            // Initialize the enhanced application features immediately
+            try {
                 if (typeof window.initializeApp === 'function') {
-                    try {
-                        window.initializeApp();
-                    } catch (error) {
-                        console.log('Enhanced features not yet loaded:', error);
-                    }
+                    window.initializeApp();
+                } else {
+                    // If not available yet, try again in a moment
+                    setTimeout(() => {
+                        if (typeof window.initializeApp === 'function') {
+                            window.initializeApp();
+                        }
+                    }, 100);
                 }
-            }, 500);
+            } catch (error) {
+                console.error('Failed to initialize enhanced features:', error);
+            }
         });
     </script>
 </body>

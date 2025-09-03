@@ -12,14 +12,22 @@ class ModelViewerController {
 
     initialize() {
         this.modelViewer = document.getElementById('modelViewer');
-        this.loadCurrentDesign();
+        
+        // Only auto-load if no model is already set
+        if (!this.modelViewer.src) {
+            this.loadCurrentDesign();
+        }
+        
         return this.modelViewer;
     }
 
     loadCurrentDesign() {
-        // Load the current design model
-        const designModelPath = 'public/models/the-thoughtful-father/current-design.glb';
-        this.modelViewer.src = designModelPath;
+        // Check if we're in a client context, otherwise use default
+        const clientPath = window.currentClient ? 
+            `public/models/${window.currentClient}/current-design.glb` : 
+            'public/models/the-thoughtful-father/current-design.glb';
+            
+        this.modelViewer.src = clientPath;
         
         // Update model info and name
         const modelInfo = document.getElementById('modelInfo');
