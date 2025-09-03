@@ -1043,26 +1043,28 @@
     <script>
         // Enhanced screenshot functionality
         function startScreenshot() {
-            if (typeof window.startScreenshotCapture === 'function') {
-                window.startScreenshotCapture();
+            if (window.app && window.app.screenshotCore) {
+                window.app.startScreenshot();
             } else {
                 alert('Screenshot functionality is loading. Please wait a moment and try again.');
             }
         }
 
         function clearAllScreenshots() {
-            if (typeof window.clearAllScreenshots === 'function') {
-                window.clearAllScreenshots();
+            if (window.app && window.app.galleryManager) {
+                window.app.clearAllScreenshots();
             }
         }
 
         function closeModal() {
-            if (typeof window.closeModal === 'function') {
-                window.closeModal();
+            if (window.app && window.app.modalManager) {
+                window.app.modalManager.closeModal();
             }
         }
 
         // Initialize enhanced features when app loads
+        let app; // Global app instance
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize the enhanced application features
             setTimeout(() => {

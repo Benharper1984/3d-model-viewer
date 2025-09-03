@@ -119,4 +119,7 @@ function clearAllScreenshots() {
 function initializeApp() {
     app = new App();
     app.initialize();
+    
+    // Make app globally available
+    window.app = app;
 }
