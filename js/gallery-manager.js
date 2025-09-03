@@ -32,14 +32,14 @@ class GalleryManager {
             });
             
             this.screenshots.push(cloudScreenshot);
-            this.addScreenshotToGallery(cloudScreenshot, false); // Don't save to localStorage
+            
+            // Sort and re-render to maintain unresolved-first order
+            this.sortAndReorderScreenshots();
             
             // Show gallery if first screenshot
             if (this.screenshots.length === 1) {
                 document.getElementById('screenshotGallery').style.display = 'block';
             }
-            
-            this.updateShowMoreButton();
             
         } catch (error) {
             console.error('Failed to save screenshot:', error);
@@ -64,10 +64,23 @@ class GalleryManager {
         
         // Determine if current user can delete this screenshot
         const canDeleteScreenshot = this.currentUser && this.currentUser.canDelete;
+        const isAdmin = this.currentUser && this.currentUser.role === 'admin';
+        
+        // Initialize resolution status if not set
+        if (typeof screenshot.isResolved === 'undefined') {
+            screenshot.isResolved = false;
+        }
         
         const item = document.createElement('div');
         item.className = 'screenshot-item';
         item.dataset.screenshotId = screenshot.id;
+        
+        // Add resolved class if screenshot is resolved
+        if (screenshot.isResolved) {
+            item.classList.add('resolved-screenshot');
+        } else {
+            item.classList.add('unresolved-screenshot');
+        }
         
         // Check if this should be hidden initially (beyond first 2 rows)
         const currentIndex = this.screenshots.length - 1;
@@ -77,21 +90,38 @@ class GalleryManager {
             item.classList.add('hidden-screenshot');
         }
         
+        const resolvedBadge = screenshot.isResolved ? 
+            '<span class="resolution-badge resolved">✓ Resolved</span>' : 
+            '<span class="resolution-badge unresolved">⏳ Unresolved</span>';
+        
         item.innerHTML = `
             <img src="${screenshot.url}" alt="Screenshot" class="screenshot-preview" onclick="openModal('${screenshot.url}')">
-            <div class="screenshot-timestamp">${screenshot.timestamp}</div>
+            <div class="screenshot-header">
+                <div class="screenshot-timestamp">${screenshot.timestamp}</div>
+                ${resolvedBadge}
+            </div>
             <div class="screenshot-metadata">
                 <div class="model-version-info">Model File: ${screenshot.modelVersion || 'Current Version'}</div>
                 <div class="created-by-info">Created by: <strong>${screenshot.createdBy || 'Unknown'}</strong></div>
                 <div class="screenshot-tags"></div>
             </div>
             <div class="comment-section">
-                <div id="comments-list-${screenshot.id}" class="comments-list"></div>
-                <textarea class="comment-input" placeholder="Add a comment about this screenshot..." data-id="${screenshot.id}"></textarea>
-                <div class="comment-buttons">
-                    <button class="save-comment-btn" onclick="galleryManager.addComment(${screenshot.id})">Add Comment</button>
-                    <button class="add-tag-btn" onclick="galleryManager.showTagModal(${screenshot.id})">🏷️ Add Tag</button>
-                    ${canDeleteScreenshot ? `<button class="delete-screenshot-btn" onclick="galleryManager.deleteScreenshot(${screenshot.id})">Delete Screenshot</button>` : ''}
+                <div class="comment-thread-header">
+                    <button class="toggle-comments-btn" onclick="galleryManager.toggleCommentThread(${screenshot.id})">
+                        💬 Comments (${screenshot.comments ? screenshot.comments.length : 0})
+                    </button>
+                    ${isAdmin ? `<button class="resolve-btn ${screenshot.isResolved ? 'resolved' : ''}" onclick="galleryManager.toggleResolution(${screenshot.id})">${screenshot.isResolved ? '↩️ Unresolve' : '✅ Mark Resolved'}</button>` : ''}
+                </div>
+                <div id="comments-thread-${screenshot.id}" class="comments-thread" style="display: none;">
+                    <div id="comments-list-${screenshot.id}" class="comments-list"></div>
+                    <div class="add-comment-section">
+                        <textarea class="comment-input" placeholder="Add a comment about this screenshot..." data-id="${screenshot.id}"></textarea>
+                        <div class="comment-buttons">
+                            <button class="save-comment-btn" onclick="galleryManager.addComment(${screenshot.id})">Add Comment</button>
+                            <button class="add-tag-btn" onclick="galleryManager.showTagModal(${screenshot.id})">🏷️ Add Tag</button>
+                            ${canDeleteScreenshot ? `<button class="delete-screenshot-btn" onclick="galleryManager.deleteScreenshot(${screenshot.id})">Delete Screenshot</button>` : ''}
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -136,6 +166,9 @@ class GalleryManager {
                 screenshot.comments.push(comment);
                 this.displayComment(screenshotId, comment);
                 
+                // Update comment count in toggle button
+                this.updateCommentCount(screenshotId);
+                
                 // Clear input
                 input.value = '';
             }
@@ -172,6 +205,9 @@ class GalleryManager {
             const screenshot = this.screenshots.find(s => s.id === screenshotId);
             if (screenshot) {
                 screenshot.comments = screenshot.comments.filter(c => c.id !== commentId);
+                
+                // Update comment count
+                this.updateCommentCount(screenshotId);
                 
                 // Save to storage
                 this.saveToStorage();
@@ -246,12 +282,8 @@ class GalleryManager {
             if (this.screenshots.length > 0) {
                 document.getElementById('screenshotGallery').style.display = 'block';
                 
-                // Add each screenshot to gallery
-                this.screenshots.forEach((screenshot, index) => {
-                    this.addScreenshotToGallery(screenshot, false);
-                });
-                
-                this.updateShowMoreButton();
+                // Sort screenshots with unresolved first
+                this.sortAndReorderScreenshots();
             }
         } catch (error) {
             console.error('Failed to load screenshots:', error);
@@ -696,6 +728,120 @@ class GalleryManager {
                 ${tag.name}
             </span>
         `).join('');
+    }
+
+    // Comment thread and resolution management
+    toggleCommentThread(screenshotId) {
+        const thread = document.getElementById(`comments-thread-${screenshotId}`);
+        const button = thread.parentElement.querySelector('.toggle-comments-btn');
+        
+        if (thread.style.display === 'none') {
+            thread.style.display = 'block';
+            button.innerHTML = `💬 Comments (${this.getCommentCount(screenshotId)}) - Hide`;
+        } else {
+            thread.style.display = 'none';
+            button.innerHTML = `💬 Comments (${this.getCommentCount(screenshotId)})`;
+        }
+    }
+
+    getCommentCount(screenshotId) {
+        const screenshot = this.screenshots.find(s => s.id === screenshotId);
+        return screenshot && screenshot.comments ? screenshot.comments.length : 0;
+    }
+
+    updateCommentCount(screenshotId) {
+        const button = document.querySelector(`[data-screenshot-id="${screenshotId}"] .toggle-comments-btn`);
+        const thread = document.getElementById(`comments-thread-${screenshotId}`);
+        const count = this.getCommentCount(screenshotId);
+        
+        if (button) {
+            if (thread && thread.style.display === 'block') {
+                button.innerHTML = `💬 Comments (${count}) - Hide`;
+            } else {
+                button.innerHTML = `💬 Comments (${count})`;
+            }
+        }
+    }
+
+    toggleResolution(screenshotId) {
+        if (!this.currentUser || this.currentUser.role !== 'admin') {
+            alert('Only administrators can mark screenshots as resolved.');
+            return;
+        }
+
+        const screenshot = this.screenshots.find(s => s.id === screenshotId);
+        if (!screenshot) return;
+
+        // Toggle resolution status
+        screenshot.isResolved = !screenshot.isResolved;
+
+        // Update UI
+        this.updateResolutionStatus(screenshotId);
+        
+        // Re-sort and re-render gallery to maintain unresolved-first order
+        this.sortAndReorderScreenshots();
+
+        // Save to cloud storage
+        this.cloudStorage.saveMetadata(screenshot);
+    }
+
+    updateResolutionStatus(screenshotId) {
+        const item = document.querySelector(`[data-screenshot-id="${screenshotId}"]`);
+        const screenshot = this.screenshots.find(s => s.id === screenshotId);
+        
+        if (!item || !screenshot) return;
+
+        // Update classes
+        if (screenshot.isResolved) {
+            item.classList.remove('unresolved-screenshot');
+            item.classList.add('resolved-screenshot');
+        } else {
+            item.classList.remove('resolved-screenshot');
+            item.classList.add('unresolved-screenshot');
+        }
+
+        // Update badge
+        const badge = item.querySelector('.resolution-badge');
+        if (badge) {
+            badge.className = screenshot.isResolved ? 'resolution-badge resolved' : 'resolution-badge unresolved';
+            badge.textContent = screenshot.isResolved ? '✓ Resolved' : '⏳ Unresolved';
+        }
+
+        // Update button
+        const resolveBtn = item.querySelector('.resolve-btn');
+        if (resolveBtn) {
+            resolveBtn.className = screenshot.isResolved ? 'resolve-btn resolved' : 'resolve-btn';
+            resolveBtn.textContent = screenshot.isResolved ? '↩️ Unresolve' : '✅ Mark Resolved';
+        }
+    }
+
+    sortAndReorderScreenshots() {
+        // Sort screenshots: unresolved first, then resolved, maintaining timestamp order within each group
+        this.screenshots.sort((a, b) => {
+            // First sort by resolution status (unresolved first)
+            if (a.isResolved !== b.isResolved) {
+                return a.isResolved ? 1 : -1;
+            }
+            // Then sort by timestamp (newest first within each group)
+            return new Date(b.timestamp) - new Date(a.timestamp);
+        });
+
+        // Clear and re-render the gallery
+        const container = document.getElementById('screenshotsContainer');
+        container.innerHTML = '';
+        
+        // Check if we should show empty state
+        if (this.screenshots.length === 0) {
+            this.showEmptyState();
+            return;
+        }
+
+        // Re-add all screenshots in the new order
+        this.screenshots.forEach((screenshot, index) => {
+            this.addScreenshotToGallery(screenshot, false);
+        });
+
+        this.updateShowMoreButton();
     }
 
     getContrastColor(hexColor) {

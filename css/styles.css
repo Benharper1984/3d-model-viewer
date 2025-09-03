@@ -1133,3 +1133,117 @@ model-viewer {
         padding: 12px;
     }
 }
+
+/* Resolution and Comment Threading Styles */
+.screenshot-item.unresolved-screenshot {
+    border-left: 4px solid #ffc107;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+}
+
+.screenshot-item.resolved-screenshot {
+    border-left: 4px solid #28a745;
+    opacity: 0.8;
+}
+
+.screenshot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.resolution-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.resolution-badge.unresolved {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.resolution-badge.resolved {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.comment-thread-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.toggle-comments-btn {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.toggle-comments-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.resolve-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.resolve-btn:hover {
+    background: #218838;
+}
+
+.resolve-btn.resolved {
+    background: #6c757d;
+}
+
+.resolve-btn.resolved:hover {
+    background: #545b62;
+}
+
+.comments-thread {
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    background: #f8f9fa;
+    margin-top: 10px;
+}
+
+.comments-list {
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.add-comment-section {
+    padding: 10px;
+    border-top: 1px solid #e9ecef;
+    background: white;
+    border-radius: 0 0 6px 6px;
+}
+
+.comment-input {
+    width: 100%;
+    min-height: 60px;
+    margin-bottom: 8px;
+}
