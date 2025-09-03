@@ -375,27 +375,7 @@ class GalleryManager {
                             <h4>Admin Tag Management</h4>
                             <div class="create-tag-form">
                                 <input type="text" id="newTagName" placeholder="Tag name" maxlength="20">
-                                <div class="color-palette">
-                                    <div class="color-palette-label">Choose a color:</div>
-                                    <div class="color-options" id="colorOptions">
-                                        <div class="color-option" data-color="#667eea" style="background-color: #667eea" title="Blue"></div>
-                                        <div class="color-option" data-color="#28a745" style="background-color: #28a745" title="Green"></div>
-                                        <div class="color-option" data-color="#ffc107" style="background-color: #ffc107" title="Yellow"></div>
-                                        <div class="color-option" data-color="#dc3545" style="background-color: #dc3545" title="Red"></div>
-                                        <div class="color-option" data-color="#17a2b8" style="background-color: #17a2b8" title="Cyan"></div>
-                                        <div class="color-option" data-color="#6f42c1" style="background-color: #6f42c1" title="Purple"></div>
-                                        <div class="color-option" data-color="#fd7e14" style="background-color: #fd7e14" title="Orange"></div>
-                                        <div class="color-option" data-color="#e83e8c" style="background-color: #e83e8c" title="Pink"></div>
-                                        <div class="color-option" data-color="#20c997" style="background-color: #20c997" title="Teal"></div>
-                                        <div class="color-option" data-color="#6c757d" style="background-color: #6c757d" title="Gray"></div>
-                                        <div class="color-option" data-color="#343a40" style="background-color: #343a40" title="Dark Gray"></div>
-                                        <div class="color-option" data-color="#007bff" style="background-color: #007bff" title="Primary Blue"></div>
-                                        <div class="color-option" data-color="#795548" style="background-color: #795548" title="Brown"></div>
-                                        <div class="color-option" data-color="#9c27b0" style="background-color: #9c27b0" title="Magenta"></div>
-                                        <div class="color-option" data-color="#ff5722" style="background-color: #ff5722" title="Deep Orange"></div>
-                                    </div>
-                                    <input type="hidden" id="newTagColor" value="#667eea">
-                                </div>
+                                <input type="color" id="newTagColor" value="#667eea">
                                 <label class="permission-checkbox">
                                     <input type="checkbox" id="clientCanUseTag"> Allow clients to use this tag
                                 </label>
@@ -424,7 +404,6 @@ class GalleryManager {
         // Populate admin tag permissions if admin
         if (isAdmin) {
             this.populateTagPermissions();
-            this.setupColorPalette();
         }
 
         // Close modal on background click
@@ -469,27 +448,6 @@ class GalleryManager {
                 </button>
             `;
             grid.appendChild(tagElement);
-        });
-    }
-
-    setupColorPalette() {
-        const colorOptions = document.querySelectorAll('.color-option');
-        const hiddenInput = document.getElementById('newTagColor');
-        
-        // Set initial selection
-        colorOptions[0].classList.add('selected');
-        
-        colorOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                // Remove previous selection
-                colorOptions.forEach(opt => opt.classList.remove('selected'));
-                
-                // Select clicked option
-                option.classList.add('selected');
-                
-                // Update hidden input value
-                hiddenInput.value = option.dataset.color;
-            });
         });
     }
 
@@ -641,11 +599,6 @@ class GalleryManager {
         nameInput.value = '';
         colorInput.value = '#667eea';
         clientCanUseInput.checked = false;
-        
-        // Reset color palette selection
-        const colorOptions = document.querySelectorAll('.color-option');
-        colorOptions.forEach(opt => opt.classList.remove('selected'));
-        colorOptions[0].classList.add('selected');
 
         // Update display
         this.populateExistingTags(screenshotId);

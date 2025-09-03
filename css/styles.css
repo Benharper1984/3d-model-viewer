@@ -542,6 +542,65 @@ model-viewer {
     display: none;
 }
 
+/* Color Palette Styles */
+.color-palette {
+    margin: 10px 0;
+}
+
+.color-palette-label {
+    font-size: 14px;
+    color: #495057;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.color-options {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.color-option {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.color-option.selected {
+    border-color: #333;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.color-option.selected::after {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Dark colors need white checkmark, light colors need black */
+.color-option[data-color="#ffc107"].selected::after,
+.color-option[data-color="#20c997"].selected::after {
+    color: #333;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
@@ -583,6 +642,16 @@ model-viewer {
 
     .comment-buttons {
         flex-direction: column;
+    }
+
+    .color-options {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    
+    .color-option {
+        width: 40px;
+        height: 40px;
     }
 }
 
