@@ -604,19 +604,14 @@
             <p class="subtitle">Please select your project to continue</p>
             
             <div class="client-grid">
-                <div class="client-card" onclick="selectClient('the-thoughtful-father', 'The Thoughtful Father')">
-                    <h3>The Thoughtful Father</h3>
-                    <p>Design Progress</p>
-                </div>
-                
                 <div class="client-card" onclick="selectClient('the-favorite-neighbors', 'The Favorite Neighbors')">
                     <h3>The Favorite Neighbors</h3>
                     <p>View your custom project files</p>
                 </div>
                 
-                <div class="client-card" onclick="selectClient('feature-testing', 'Feature Testing Playground')">
-                    <h3>Feature Testing Playground</h3>
-                    <p>Test new features and experimental tools</p>
+                <div class="client-card" onclick="selectClient('feature-testing', 'The Thoughtful Father')">
+                    <h3>The Thoughtful Father</h3>
+                    <p>Design Progress</p>
                 </div>
             </div>
         </div>
@@ -698,19 +693,13 @@
     <script>
         // Client configuration
         const CLIENTS = {
-            'the-thoughtful-father': {
-                name: 'The Thoughtful Father',
-                password: 'LotuS',
-                adminPassword: 'testing123',
-                modelsPath: 'public/models/the-thoughtful-father/'
-            },
             'the-favorite-neighbors': {
                 name: 'The Favorite Neighbors',
                 password: 'DeckinRear',
                 modelsPath: 'public/models/the-favorite-neighbors/'
             },
             'feature-testing': {
-                name: 'Feature Testing Playground',
+                name: 'The Thoughtful Father',
                 password: 'testing123',
                 redirectTo: 'screenshot-test.html',
                 acceptAllPasswords: true  // Accept any valid user password
