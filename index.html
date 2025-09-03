@@ -702,7 +702,8 @@
                 name: 'The Thoughtful Father',
                 password: 'testing123',
                 redirectTo: 'screenshot-test.html',
-                acceptAllPasswords: true  // Accept any valid user password
+                acceptAllPasswords: true,  // Accept any valid user password
+                validPasswords: ['testing123', 'LotuS']  // Specific passwords for this client
             }
         };
 
@@ -805,8 +806,8 @@
             
             // Check if this is feature testing that accepts all passwords
             if (clientConfig.acceptAllPasswords) {
-                // Check against all valid passwords
-                const validPasswords = ['testing123', 'LotuS', 'DeckinRear'];
+                // Check against client-specific valid passwords if available
+                const validPasswords = clientConfig.validPasswords || ['testing123', 'LotuS', 'DeckinRear'];
                 isValidPassword = validPasswords.includes(userPassword);
                 isAdmin = (userPassword === 'testing123');
             } else {
