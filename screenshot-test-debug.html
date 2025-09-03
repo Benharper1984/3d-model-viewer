@@ -178,19 +178,18 @@
                         <div>Loading 3D Model...</div>
                     </div>
                 </model-viewer>
-                
-                <!-- Controls hint -->
-                <div class="controls-hint">
-                    <div class="controls-hint-content">
-                        💡 <strong>Controls:</strong> Left-click & drag to rotate • Right-click & drag to pan • Scroll to zoom • Double-click to focus
-                    </div>
-                </div>
             </div>
 
             <div class="controls">
                 <button class="control-btn" onclick="resetCamera()">Reset Camera</button>
                 <button class="control-btn active" id="autoRotateBtn" onclick="toggleAutoRotate()">Auto Rotate: OFF</button>
                 <button class="control-btn screenshot-btn">📸 Take Screenshot (Debug)</button>
+                <!-- Controls hint -->
+                <div class="controls-hint-inline">
+                    <div class="controls-hint-content">
+                        💡 <strong>Controls:</strong> Left-click & drag to rotate • Right-click & drag to pan • Scroll to zoom • Double-click to focus
+                    </div>
+                </div>
                 <div class="model-info" id="modelInfo">Debug mode - basic functionality only</div>
             </div>
         </div>
