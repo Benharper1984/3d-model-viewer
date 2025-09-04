@@ -14,6 +14,34 @@ class CloudStorageManager {
         try {
             console.log('Testing Vercel Blob storage connection...');
             
+            // Test 0: Check basic API connectivity with diagnostics
+            console.log('Testing API connectivity and diagnostics...');
+            const diagnosticsResponse = await fetch(`${this.apiBase}/test-connection`);
+            console.log('Diagnostics endpoint - Status:', diagnosticsResponse.status);
+            
+            if (diagnosticsResponse.ok) {
+                const diagnostics = await diagnosticsResponse.json();
+                console.log('API Diagnostics:', diagnostics);
+                
+                if (!diagnostics.diagnostics.hasBloodToken) {
+                    return {
+                        success: false,
+                        message: 'BLOB_READ_WRITE_TOKEN not configured in Vercel environment variables',
+                        diagnostics: diagnostics.diagnostics,
+                        fix: 'Go to Vercel Dashboard > Project Settings > Environment Variables and add BLOB_READ_WRITE_TOKEN'
+                    };
+                }
+                
+                if (!diagnostics.diagnostics.blobModuleLoaded) {
+                    return {
+                        success: false,
+                        message: 'Vercel Blob module failed to load',
+                        diagnostics: diagnostics.diagnostics,
+                        fix: 'Check if @vercel/blob is properly installed'
+                    };
+                }
+            }
+            
             // Test 1: Check if list endpoint works
             console.log('Testing list-screenshots endpoint...');
             const listResponse = await fetch(`${this.apiBase}/list-screenshots?prefix=test/`);
