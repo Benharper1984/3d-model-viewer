@@ -19,6 +19,9 @@ class ScreenshotCore {
             return;
         }
         
+        // Store current camera state before starting screenshot
+        this.storeCameraState();
+        
         this.isSelectingArea = true;
         const overlay = document.getElementById('screenshotOverlay');
         
@@ -29,11 +32,33 @@ class ScreenshotCore {
         
         overlay.style.display = 'block';
         
-        // Temporarily disable model controls
+        // Temporarily disable model controls but preserve camera state
         this.modelViewer.removeAttribute('camera-controls');
         this.modelViewer.style.pointerEvents = 'none';
         
         this.setupScreenshotSelection();
+    }
+
+    storeCameraState() {
+        // Store the current camera position, target, and orbit
+        this.storedCameraState = {
+            cameraOrbit: this.modelViewer.getCameraOrbit(),
+            cameraTarget: this.modelViewer.getCameraTarget(),
+            fieldOfView: this.modelViewer.getFieldOfView()
+        };
+    }
+
+    restoreCameraState() {
+        // Restore the camera state after screenshot
+        if (this.storedCameraState) {
+            try {
+                this.modelViewer.cameraOrbit = this.storedCameraState.cameraOrbit;
+                this.modelViewer.cameraTarget = this.storedCameraState.cameraTarget;
+                this.modelViewer.fieldOfView = this.storedCameraState.fieldOfView;
+            } catch (error) {
+                console.log('Camera state restoration failed:', error);
+            }
+        }
     }
 
     setupScreenshotSelection() {
@@ -173,8 +198,17 @@ class ScreenshotCore {
         console.log('Canvas capture - Selection:', selection);
         
         try {
-            // Draw the selected portion of the model-viewer canvas
-            ctx.drawImage(sourceCanvas, 
+            // Ensure we don't modify the source canvas
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = sourceCanvas.width;
+            tempCanvas.height = sourceCanvas.height;
+            
+            // Copy the source canvas to avoid any state changes
+            tempCtx.drawImage(sourceCanvas, 0, 0);
+            
+            // Draw the selected portion from the temp canvas
+            ctx.drawImage(tempCanvas, 
                 selection.x, selection.y, selection.width, selection.height,
                 0, 0, selection.width, selection.height
             );
@@ -297,6 +331,9 @@ class ScreenshotCore {
         // Re-enable model controls
         this.modelViewer.setAttribute('camera-controls', '');
         this.modelViewer.style.pointerEvents = 'auto';
+        
+        // Restore camera state to prevent unwanted changes
+        this.restoreCameraState();
         
         // Clean up selection box
         if (this.selectionBox) {
