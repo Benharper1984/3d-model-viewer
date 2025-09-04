@@ -1,4 +1,6 @@
-export default async function handler(request, response) {
+const { put, list } = require('@vercel/blob');
+
+module.exports = async function handler(request, response) {
   try {
     const diagnostics = {
       timestamp: new Date().toISOString(),
@@ -10,15 +12,16 @@ export default async function handler(request, response) {
     
     // Test @vercel/blob import
     try {
-      const { put, list } = await import('@vercel/blob');
-      diagnostics.blobModuleLoaded = true;
-      
       if (process.env.BLOB_READ_WRITE_TOKEN) {
         // Try a simple list operation
         const { blobs } = await list({ prefix: 'test/', limit: 1 });
         diagnostics.blobTestWorking = true;
         diagnostics.message = 'Vercel Blob connection successful!';
+        diagnostics.testBlobCount = blobs.length;
+      } else {
+        diagnostics.message = 'Token not found but API working';
       }
+      diagnostics.blobModuleLoaded = true;
     } catch (error) {
       diagnostics.blobModuleLoaded = false;
       diagnostics.error = error.message;
@@ -35,4 +38,4 @@ export default async function handler(request, response) {
       error: error.message
     });
   }
-}
+};
