@@ -9,6 +9,101 @@ class CloudStorageManager {
         this.currentJobId = this.getCurrentJobId();
     }
 
+    // Test blob storage connection
+    async testConnection() {
+        try {
+            console.log('Testing Vercel Blob storage connection...');
+            
+            // Test 1: Check if list endpoint works
+            console.log('Testing list-screenshots endpoint...');
+            const listResponse = await fetch(`${this.apiBase}/list-screenshots?prefix=test/`);
+            console.log('List endpoint test - Status:', listResponse.status);
+            
+            if (!listResponse.ok) {
+                const listError = await listResponse.text();
+                console.error('List endpoint failed:', listResponse.status, listError);
+            }
+            
+            // Test 2: Check if upload endpoint exists
+            const testResponse = await fetch(`${this.apiBase}/upload-screenshot`, {
+                method: 'OPTIONS'
+            });
+            
+            console.log('Upload endpoint test - Status:', testResponse.status);
+            
+            // Test 3: Try a small test upload
+            console.log('Testing file upload...');
+            const testCanvas = document.createElement('canvas');
+            testCanvas.width = 10;
+            testCanvas.height = 10;
+            const ctx = testCanvas.getContext('2d');
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(0, 0, 10, 10);
+            
+            const testBlob = await this.canvasToBlob(testCanvas);
+            const testFilename = `test/connection-test-${Date.now()}.jpg`;
+            
+            const uploadResponse = await fetch(`${this.apiBase}/upload-screenshot?filename=${encodeURIComponent(testFilename)}`, {
+                method: 'POST',
+                body: testBlob,
+                headers: {
+                    'Content-Type': 'image/jpeg'
+                }
+            });
+            
+            if (uploadResponse.ok) {
+                const result = await uploadResponse.json();
+                console.log('✅ Blob storage connection successful!');
+                console.log('Test file uploaded to:', result.url);
+                
+                // Test 4: Verify the file was actually uploaded by listing it
+                const verifyResponse = await fetch(`${this.apiBase}/list-screenshots?prefix=test/`);
+                if (verifyResponse.ok) {
+                    const verifyResult = await verifyResponse.json();
+                    const foundTestFile = verifyResult.screenshots?.some(blob => blob.url === result.url);
+                    
+                    return {
+                        success: true,
+                        message: `Vercel Blob storage is working correctly${foundTestFile ? ' (verified file listing)' : ''}`,
+                        testUrl: result.url,
+                        endpoints: {
+                            list: listResponse.status,
+                            upload: uploadResponse.status,
+                            verify: verifyResponse.status
+                        }
+                    };
+                } else {
+                    return {
+                        success: true,
+                        message: 'Upload works but listing verification failed',
+                        testUrl: result.url,
+                        warning: 'List endpoint may have issues'
+                    };
+                }
+            } else {
+                const errorText = await uploadResponse.text();
+                console.error('❌ Blob storage connection failed:', uploadResponse.status, errorText);
+                return {
+                    success: false,
+                    message: `Upload failed: ${uploadResponse.status} ${errorText}`,
+                    error: errorText,
+                    endpoints: {
+                        list: listResponse.status,
+                        upload: uploadResponse.status
+                    }
+                };
+            }
+            
+        } catch (error) {
+            console.error('❌ Blob storage connection test failed:', error);
+            return {
+                success: false,
+                message: 'Connection test failed: ' + error.message,
+                error: error.message
+            };
+        }
+    }
+
     // Generate or get current job ID (you can customize this logic)
     getCurrentJobId() {
         let jobId = sessionStorage.getItem('currentJobId');

@@ -116,6 +116,39 @@ function clearAllScreenshots() {
     if (app) app.clearAllScreenshots();
 }
 
+async function testBlobConnection() {
+    if (!app || !app.galleryManager || !app.galleryManager.cloudStorage) {
+        alert('❌ App not initialized properly');
+        return;
+    }
+    
+    const button = document.querySelector('.test-connection-btn');
+    const originalText = button.textContent;
+    
+    // Show loading state
+    button.textContent = '🔄 Testing...';
+    button.disabled = true;
+    
+    try {
+        const result = await app.galleryManager.cloudStorage.testConnection();
+        
+        if (result.success) {
+            alert(`✅ ${result.message}\n\nTest file: ${result.testUrl}`);
+            console.log('Blob storage test successful:', result);
+        } else {
+            alert(`❌ ${result.message}\n\nPlease check:\n- Vercel Blob is configured\n- BLOB_READ_WRITE_TOKEN is set\n- API routes are working`);
+            console.error('Blob storage test failed:', result);
+        }
+    } catch (error) {
+        alert(`❌ Connection test error: ${error.message}`);
+        console.error('Connection test error:', error);
+    } finally {
+        // Restore button state
+        button.textContent = originalText;
+        button.disabled = false;
+    }
+}
+
 // This will be called by the main HTML file
 function initializeApp() {
     app = new App();

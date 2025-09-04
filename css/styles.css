@@ -276,6 +276,19 @@ model-viewer {
     background: #218838;
 }
 
+.test-connection-btn {
+    background: #17a2b8;
+}
+
+.test-connection-btn:hover {
+    background: #138496;
+}
+
+.test-connection-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
 .model-info {
     color: #666;
     font-size: 14px;
