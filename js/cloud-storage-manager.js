@@ -23,7 +23,7 @@ class CloudStorageManager {
                 const diagnostics = await diagnosticsResponse.json();
                 console.log('API Diagnostics:', diagnostics);
                 
-                if (!diagnostics.diagnostics.hasBloodToken) {
+                if (!diagnostics.diagnostics.hasToken) {
                     return {
                         success: false,
                         message: 'BLOB_READ_WRITE_TOKEN not configured in Vercel environment variables',

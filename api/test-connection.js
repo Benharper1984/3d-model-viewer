@@ -1,33 +1,32 @@
 export default async function handler(request, response) {
+  // Set CORS headers
+  response.setHeader('Access-Control-Allow-Origin', '*');
+  response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (request.method === 'OPTIONS') {
+    return response.status(200).end();
+  }
+
   try {
-    // Check if we're in the right environment
-    const hasToken = !!process.env.BLOB_READ_WRITE_TOKEN;
-    
-    // Basic diagnostic info
     const diagnostics = {
       timestamp: new Date().toISOString(),
       method: request.method,
-      hasBloodToken: hasToken,
-      tokenPrefix: hasToken ? process.env.BLOB_READ_WRITE_TOKEN.substring(0, 25) + '...' : 'Not configured',
+      hasBloodToken: !!process.env.BLOB_READ_WRITE_TOKEN,
       nodeVersion: process.version,
-      environment: {
-        NODE_ENV: process.env.NODE_ENV,
-        VERCEL: process.env.VERCEL,
-        VERCEL_ENV: process.env.VERCEL_ENV
-      }
+      vercelEnv: process.env.VERCEL_ENV || 'unknown'
     };
     
-    // Test if we can import @vercel/blob
+    // Test blob module import
     try {
-      const { put, list } = await import('@vercel/blob');
+      const { list } = await import('@vercel/blob');
       diagnostics.blobModuleLoaded = true;
       
-      if (hasToken) {
-        // Try a simple list operation
+      if (diagnostics.hasBloodToken) {
         try {
-          const { blobs } = await list({ prefix: 'test/' });
+          const { blobs } = await list({ prefix: 'test/', limit: 1 });
           diagnostics.blobConnectionWorking = true;
-          diagnostics.testBlobCount = blobs.length;
+          diagnostics.blobCount = blobs.length;
         } catch (error) {
           diagnostics.blobConnectionWorking = false;
           diagnostics.blobError = error.message;
@@ -39,15 +38,14 @@ export default async function handler(request, response) {
     }
     
     return response.status(200).json({
-      status: 'API endpoint working',
+      status: 'API working',
       diagnostics
     });
     
   } catch (error) {
     return response.status(500).json({
-      status: 'API endpoint error',
-      error: error.message,
-      stack: error.stack
+      status: 'API error',
+      error: error.message
     });
   }
 }
