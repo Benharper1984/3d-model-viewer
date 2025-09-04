@@ -849,6 +849,12 @@
                 const adminBadge = isAdmin ? '<span class="user-type">(ADMIN)</span>' : '';
                 document.getElementById('clientInfo').innerHTML = `Welcome, ${clientConfig.name} ${adminBadge}`;
                 
+                // Show/hide admin-only features
+                const testConnectionBtn = document.querySelector('.test-connection-btn');
+                if (testConnectionBtn) {
+                    testConnectionBtn.style.display = isAdmin ? 'inline-block' : 'none';
+                }
+                
                 // Auto-load the current-design.glb model
                 autoLoadCurrentDesign(clientConfig);
                 

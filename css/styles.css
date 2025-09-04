@@ -278,6 +278,7 @@ model-viewer {
 
 .test-connection-btn {
     background: #17a2b8;
+    display: none; /* Hidden by default, shown only for admins */
 }
 
 .test-connection-btn:hover {
