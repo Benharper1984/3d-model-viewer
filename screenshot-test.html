@@ -58,6 +58,8 @@
                         💡 <strong>Controls:</strong> Left-click & drag to rotate • Right-click & drag to pan • Scroll to zoom • Double-click to focus
                     </div>
                 </div>
+                <button class="control-btn" onclick="toggleWireframe()">Toggle Wireframe</button>
+                <button class="control-btn test-connection-btn" onclick="testBlobConnection()" title="Test cloud storage connection">🔌 Test Storage</button>
                 <div class="model-info" id="modelInfo">Upload a model to start testing</div>
             </div>
 
@@ -97,9 +99,39 @@
     
     <!-- Initialize Application -->
     <script>
+        // Check for admin status from URL parameters or session
+        function checkAdminStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userParam = urlParams.get('user');
+            
+            // Show/hide admin-only features based on user parameter
+            const isAdmin = (userParam === 'testing123');
+            const testConnectionBtn = document.querySelector('.test-connection-btn');
+            if (testConnectionBtn) {
+                testConnectionBtn.style.display = isAdmin ? 'inline-block' : 'none';
+            }
+            
+            return isAdmin;
+        }
+        
+        // Additional control functions for this page
+        function toggleWireframe() {
+            const modelViewer = document.getElementById('modelViewer');
+            const currentEnv = modelViewer.getAttribute('environment-image');
+            if (currentEnv === 'neutral') {
+                modelViewer.setAttribute('environment-image', 'legacy');
+            } else {
+                modelViewer.setAttribute('environment-image', 'neutral');
+            }
+        }
+        
         // Initialize the application when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             try {
+                // Check admin status first
+                checkAdminStatus();
+                
+                // Initialize main app
                 initializeApp();
             } catch (error) {
                 console.error('Failed to initialize application:', error);
