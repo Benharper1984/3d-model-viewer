@@ -19,6 +19,9 @@ class ScreenshotCore {
             return;
         }
         
+        // Store current camera state before starting screenshot
+        this.storeCameraState();
+        
         this.isSelectingArea = true;
         const overlay = document.getElementById('screenshotOverlay');
         
@@ -29,11 +32,33 @@ class ScreenshotCore {
         
         overlay.style.display = 'block';
         
-        // Temporarily disable model controls
+        // Temporarily disable model controls but preserve camera state
         this.modelViewer.removeAttribute('camera-controls');
         this.modelViewer.style.pointerEvents = 'none';
         
         this.setupScreenshotSelection();
+    }
+
+    storeCameraState() {
+        // Store the current camera position, target, and orbit
+        this.storedCameraState = {
+            cameraOrbit: this.modelViewer.getCameraOrbit(),
+            cameraTarget: this.modelViewer.getCameraTarget(),
+            fieldOfView: this.modelViewer.getFieldOfView()
+        };
+    }
+
+    restoreCameraState() {
+        // Restore the camera state after screenshot
+        if (this.storedCameraState) {
+            try {
+                this.modelViewer.cameraOrbit = this.storedCameraState.cameraOrbit;
+                this.modelViewer.cameraTarget = this.storedCameraState.cameraTarget;
+                this.modelViewer.fieldOfView = this.storedCameraState.fieldOfView;
+            } catch (error) {
+                console.log('Camera state restoration failed:', error);
+            }
+        }
     }
 
     setupScreenshotSelection() {
@@ -91,15 +116,23 @@ class ScreenshotCore {
     endSelection(e) {
         if (!this.isSelectingArea || !this.selectionStart || !this.selectionBox) return;
         
-        const rect = this.selectionBox.getBoundingClientRect();
-        const viewerRect = this.modelViewer.getBoundingClientRect();
+        // Get overlay rect for accurate positioning
+        const overlayRect = e.currentTarget.getBoundingClientRect();
+        const currentX = e.clientX - overlayRect.left;
+        const currentY = e.clientY - overlayRect.top;
         
-        // Calculate relative position within the model viewer
+        // Calculate selection dimensions based on start and end points
+        const width = Math.abs(currentX - this.selectionStart.x);
+        const height = Math.abs(currentY - this.selectionStart.y);
+        const left = Math.min(currentX, this.selectionStart.x);
+        const top = Math.min(currentY, this.selectionStart.y);
+        
+        // Create selection object with overlay-relative coordinates
         const selection = {
-            x: rect.left - viewerRect.left,
-            y: rect.top - viewerRect.top,
-            width: rect.width,
-            height: rect.height
+            x: left,
+            y: top,
+            width: width,
+            height: height
         };
         
         // Ensure minimum size
@@ -114,16 +147,17 @@ class ScreenshotCore {
     }
 
     takeScreenshot(selection) {
-        // Get the model viewer element
+        // Since the overlay is positioned absolutely within the model-viewer-container,
+        // the selection coordinates are already relative to the model viewer
         const viewerContainer = document.querySelector('.model-viewer-container');
         const rect = viewerContainer.getBoundingClientRect();
         
-        // Calculate the actual coordinates within the model viewer
+        // Ensure selection is within bounds
         const actualSelection = {
-            x: Math.max(0, selection.x),
-            y: Math.max(0, selection.y),
-            width: Math.min(selection.width, rect.width),
-            height: Math.min(selection.height, rect.height)
+            x: Math.max(0, Math.min(selection.x, rect.width)),
+            y: Math.max(0, Math.min(selection.y, rect.height)),
+            width: Math.min(selection.width, rect.width - selection.x),
+            height: Math.min(selection.height, rect.height - selection.y)
         };
         
         // Capture the model viewer
@@ -131,6 +165,9 @@ class ScreenshotCore {
     }
 
     captureModelViewer(selection) {
+        // Debug: Log the selection coordinates
+        console.log('Screenshot selection:', selection);
+        
         // Try to capture the actual model-viewer content
         try {
             // Method 1: Try to access the model-viewer's canvas directly
@@ -138,11 +175,14 @@ class ScreenshotCore {
                                     this.modelViewer.shadowRoot?.querySelector('canvas');
             
             if (modelViewerCanvas) {
+                console.log('Using direct canvas capture');
                 this.captureRealModelContent(modelViewerCanvas, selection);
             } else {
+                console.log('Using html2canvas capture');
                 this.captureWithHtml2Canvas(selection);
             }
         } catch (error) {
+            console.log('Using fallback enhanced screenshot');
             this.createEnhancedModelScreenshot(selection);
         }
     }
@@ -154,9 +194,21 @@ class ScreenshotCore {
         canvas.width = selection.width;
         canvas.height = selection.height;
         
+        console.log('Canvas capture - Source canvas size:', sourceCanvas.width, 'x', sourceCanvas.height);
+        console.log('Canvas capture - Selection:', selection);
+        
         try {
-            // Draw the selected portion of the model-viewer canvas
-            ctx.drawImage(sourceCanvas, 
+            // Ensure we don't modify the source canvas
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = sourceCanvas.width;
+            tempCanvas.height = sourceCanvas.height;
+            
+            // Copy the source canvas to avoid any state changes
+            tempCtx.drawImage(sourceCanvas, 0, 0);
+            
+            // Draw the selected portion from the temp canvas
+            ctx.drawImage(tempCanvas, 
                 selection.x, selection.y, selection.width, selection.height,
                 0, 0, selection.width, selection.height
             );
@@ -164,6 +216,7 @@ class ScreenshotCore {
             this.saveScreenshot(canvas);
             
         } catch (error) {
+            console.error('Canvas capture failed:', error);
             this.captureWithHtml2Canvas(selection);
         }
     }
@@ -278,6 +331,9 @@ class ScreenshotCore {
         // Re-enable model controls
         this.modelViewer.setAttribute('camera-controls', '');
         this.modelViewer.style.pointerEvents = 'auto';
+        
+        // Restore camera state to prevent unwanted changes
+        this.restoreCameraState();
         
         // Clean up selection box
         if (this.selectionBox) {

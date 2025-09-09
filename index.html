@@ -667,6 +667,7 @@
                     </div>
                 </div>
                 <button class="control-btn" onclick="toggleWireframe()">Toggle Wireframe</button>
+                <button class="control-btn test-connection-btn" onclick="testBlobConnection()" title="Test cloud storage connection">🔌 Test Storage</button>
                 <div class="model-info" id="modelInfo">No model loaded</div>
                 <button class="control-btn logout-btn" onclick="logout()">Logout</button>
             </div>
@@ -847,6 +848,12 @@
                 // Update client info with admin indicator
                 const adminBadge = isAdmin ? '<span class="user-type">(ADMIN)</span>' : '';
                 document.getElementById('clientInfo').innerHTML = `Welcome, ${clientConfig.name} ${adminBadge}`;
+                
+                // Show/hide admin-only features
+                const testConnectionBtn = document.querySelector('.test-connection-btn');
+                if (testConnectionBtn) {
+                    testConnectionBtn.style.display = isAdmin ? 'inline-block' : 'none';
+                }
                 
                 // Auto-load the current-design.glb model
                 autoLoadCurrentDesign(clientConfig);

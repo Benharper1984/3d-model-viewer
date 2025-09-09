@@ -1,6 +1,6 @@
-import { put } from '@vercel/blob';
+const { put } = require('@vercel/blob');
 
-export default async function handler(request, response) {
+module.exports = async function handler(request, response) {
   if (request.method !== 'POST') {
     return response.status(405).json({ error: 'Method not allowed' });
   }
@@ -20,14 +20,14 @@ export default async function handler(request, response) {
     }
     const buffer = Buffer.concat(chunks);
     
-    const blob = await put(filename, buffer, {
-      access: 'public',
-      addRandomSuffix: false,
+    // Upload to Vercel Blob using the simplified API
+    const { url } = await put(filename, buffer, {
+      access: 'public'
     });
     
-    return response.status(200).json(blob);
+    return response.status(200).json({ url });
   } catch (error) {
     console.error('Upload error:', error);
     return response.status(500).json({ error: 'Upload failed', details: error.message });
   }
-}
+};
